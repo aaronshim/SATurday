@@ -23,7 +23,7 @@ string Literal::toString() {
   if (!isSet) {
     os << "-";
   }
-  os << index;
+  os << index + 1;
 
   return os.str();
 }

@@ -5,6 +5,7 @@ public:
   void addClause(Clause *clause);
   int getNVars();
   bool checkSat(Model *model);
+  bool checkUnsat(Model *model);
 
   Formula *clone();
   string toString();
@@ -31,6 +32,15 @@ bool Formula::checkSat(Model *model) {
   }
 
   return true;
+}
+
+bool Formula::checkUnsat(Model *model) {
+  // Check each clause against model.
+  for (int i = 0; i < nClauses; i ++) {
+    if (clauses[i]->checkUnsat(model)) return true;
+  }
+
+  return false;
 }
 
 Formula *Formula::clone() {

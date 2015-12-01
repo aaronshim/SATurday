@@ -10,6 +10,8 @@ class Model {
     void clearVar(int i); // sets our variable negative
     bool checkVar(int i); // will be problematic if variable is unset default value
     bool isAssigned(int i); // will say whether the variable is assigned or not
+    int nextVar(); // Gets the index of the next unassigned var. -1 if all assigned.
+
     Model *clone();
     string toString();
 };
@@ -49,6 +51,13 @@ bool Model::checkVar(int i) {
 
 bool Model::isAssigned(int i) {
   return vars[i] != 0;
+}
+
+int Model::nextVar() {
+  for (int i = 0; i < nVars; i ++) {
+    if (vars[i] == 0) return i;
+  }
+  return -1;
 }
 
 string Model::toString() {

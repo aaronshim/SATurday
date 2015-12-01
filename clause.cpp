@@ -3,6 +3,7 @@ public:
   void addLiteral(int vari, bool isSet);
   void addLiteral(Literal *literal);
   bool checkSat(Model *model);
+  bool checkUnsat(Model *model);
 
   Clause *clone();
   string toString();
@@ -33,6 +34,19 @@ bool Clause::checkSat(Model *model) {
   }
 
   return false;
+}
+
+bool Clause::checkUnsat(Model *model) {
+  // Check each literal for true.
+  for (int i = 0; i < nLiterals; i ++) {
+    int vari = literals[i]->getIndex();
+    bool varPos = literals[i]->getIsSet();
+    if (!model->isAssigned(vari)) return false;
+    bool varSet = model->checkVar(vari);
+    if (varSet == varPos) return false;
+  }
+
+  return true;
 }
 
 Clause *Clause::clone() {
