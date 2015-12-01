@@ -20,7 +20,7 @@ string Formula::toString() {
   ostringstream os;
 
   os << "nClauses: " << nClauses << endl
-     << "nVars: " << nVars;
+     << "nVars: " << nVars << endl;
 
   for (int i = 0; i < nClauses; i ++) {
     os << clauses[i]->toString() << endl;

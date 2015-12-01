@@ -15,14 +15,14 @@ Formula *Parser::parse(FILE *file) {
     formula->addClause(clause);
 
     // Get next literal.
-    int literal;
-    int nScanned = fscanf(file, "%d", &literal);
-    cout << literal << endl;
+    while (1) {
+      int literal;
+      int nScanned = fscanf(file, "%d", &literal);
 
-    if (nScanned == 0) break;
-    if (literal == 0) continue;
+      if (nScanned == 0 || literal == 0) break;
 
-    clause->addLiteral(abs(literal), literal > 0);
+      clause->addLiteral(abs(literal), literal > 0);
+    }
   }
 
   return formula;
