@@ -1,6 +1,8 @@
 class Clause {
 public:
   void addLiteral(int vari, bool positive);
+  void addLiteral(Literal *literal);
+  Clause *clone();
   string toString();
 
 private:
@@ -11,6 +13,21 @@ private:
 void Clause::addLiteral(int vari, bool positive) {
   literals.push_back(new Literal(vari, positive));
   nLiterals ++;
+}
+
+void Clause::addLiteral(Literal *literal) {
+  literals.push_back(literal);
+  nLiterals ++;
+}
+
+Clause *Clause::clone() {
+  Clause *newClause = new Clause();
+
+  for (int i = 0; i < nLiterals; i ++) {
+    newClause->addLiteral(literals[i]->clone());
+  }
+
+  return newClause;
 }
 
 string Clause::toString() {
