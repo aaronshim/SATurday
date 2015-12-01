@@ -21,6 +21,7 @@ Model *Solver::solveR(Formula *formula, Model *model) {
   // Check if model unsatisfies formula, and if so, return null.
   if (formula->checkUnsat(model)) {
     cout << "Unsatisfied model: " << model->toString() << endl;
+    free(model);
     return NULL;
   }
 
@@ -42,5 +43,6 @@ Model *Solver::solveR(Formula *formula, Model *model) {
   retModel = solveR(formula, modelCloneClear);
   if (retModel) return retModel;
 
+  free(model);
   return NULL;
 }
