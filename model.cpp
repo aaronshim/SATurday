@@ -11,6 +11,7 @@ class Model {
     bool checkVar(int i); // will be problematic if variable is unset default value
     bool isAssigned(int i); // will say whether the variable is assigned or not
     int nextVar(); // Gets the index of the next unassigned var. -1 if all assigned.
+    Model *complete(); // Fills in clear for any unassigned var.
 
     Model *clone();
     string toString();
@@ -58,6 +59,14 @@ int Model::nextVar() {
     if (vars[i] == 0) return i;
   }
   return -1;
+}
+
+Model *Model::complete() {
+  for (int i = 0; i < nVars; i ++) {
+    if (vars[i] == 0) vars[i] = -1;
+  }
+
+  return this;
 }
 
 string Model::toString() {

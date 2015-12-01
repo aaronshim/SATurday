@@ -25,7 +25,7 @@ Model *Solver::solveR(Formula *formula, Model *model) {
   }
 
   // Check if model satisfies formula, and if so, return it.
-  if (formula->checkSat(model)) return model;
+  if (formula->checkSat(model)) return model->complete();
 
   int nextIndex = model->nextVar();
   if (nextIndex == -1) return NULL;
