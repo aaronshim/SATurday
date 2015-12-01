@@ -11,4 +11,5 @@ Model *Solver::solve(Formula *formula) {
 
 Model *Solver::solveR(Formula *formula, Model *model) {
 
+  return NULL;
 }
