@@ -1,6 +1,6 @@
 class Solver {
   public:
-    Model *solve(Formula *formula);
+    static Model *solve(Formula *formula);
 };
 
 Model *Solver::solve(Formula *formula) {

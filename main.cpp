@@ -4,12 +4,14 @@
 #include <cmath>
 #include <string>
 #include <sstream>
+#include <string.h>
 using namespace std;
 
 #include "literal.cpp"
 #include "clause.cpp"
 #include "formula.cpp"
 #include "parser.cpp"
+#include "model.cpp"
 #include "solver.cpp"
 
 int main(int argc, char **argv) {
@@ -31,6 +33,13 @@ int main(int argc, char **argv) {
   fclose(file);
 
   cout << formula->toString();
+
+  // model testing code
+  Model *testModel = new Model(5);
+  testModel->setVar(1);
+  testModel->setVar(2);
+  testModel->clearVar(2);
+  cout << testModel->toString() << endl;
 
   Model *model = Solver::solve(formula);
 
