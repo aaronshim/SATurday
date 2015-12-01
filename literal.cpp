@@ -1,23 +1,26 @@
 class Literal {
 public:
-  Literal(int index, int positive)
-    : index(index), positive(positive) {};
+  Literal(int index, int isSet)
+    : index(index), isSet(isSet) {};
+  int getIndex() { return index; };
+  bool getIsSet() { return isSet; };
+
   Literal *clone();
   string toString();
 
 private:
   int index;
-  bool positive;
+  bool isSet;
 };
 
 Literal *Literal::clone() {
-  return new Literal(index, positive);
+  return new Literal(index, isSet);
 }
 
 string Literal::toString() {
   ostringstream os;
 
-  if (!positive) {
+  if (!isSet) {
     os << "-";
   }
   os << index;

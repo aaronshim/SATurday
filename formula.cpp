@@ -3,6 +3,9 @@ public:
   Formula(int nVars)
     : nVars(nVars) {};
   void addClause(Clause *clause);
+  int getNVars();
+  bool checkSat(Model *model);
+
   Formula *clone();
   string toString();
 
@@ -15,6 +18,19 @@ private:
 void Formula::addClause(Clause *clause) {
   clauses.push_back(clause);
   nClauses ++;
+}
+
+int Formula::getNVars() {
+  return nVars;
+}
+
+bool Formula::checkSat(Model *model) {
+  // Check each clause against model.
+  for (int i = 0; i < nClauses; i ++) {
+    if (!clauses[i]->checkSat(model)) return false;
+  }
+
+  return true;
 }
 
 Formula *Formula::clone() {

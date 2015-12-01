@@ -21,7 +21,7 @@ Formula *Parser::parse(FILE *file) {
 
       if (nScanned == 0 || literal == 0) break;
 
-      clause->addLiteral(abs(literal), literal > 0);
+      clause->addLiteral(abs(literal) - 1, literal > 0);
     }
   }
 
