@@ -10,6 +10,7 @@ using namespace std;
 #include "clause.cpp"
 #include "formula.cpp"
 #include "parser.cpp"
+#include "solver.cpp"
 
 int main(int argc, char **argv) {
   if (argc != 2) {
@@ -27,9 +28,18 @@ int main(int argc, char **argv) {
 
   // Parse the file.
   Formula *formula = Parser::parse(file);
+  fclose(file);
+
   cout << formula->toString();
 
-  fclose(file);
+  Model *model = Solver::solve(formula);
+
+  if (model == NULL) {
+    cout << "s UNSATISFIABLE" << endl;
+  } else {
+    cout << "s SATISFIABLE" << endl;
+    cout << "v " << model->toString() << endl;
+  }
 
   return 0;
 }
