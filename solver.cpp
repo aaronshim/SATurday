@@ -18,6 +18,7 @@ Model *Solver::solve(Formula *formula) {
 }
 
 Model *Solver::solveR(Formula *formula, Model *model) {
+  formula->unitPropagate();
   // Check if model unsatisfies formula, and if so, return null.
   if (formula->checkUnsat(model)) {
     cout << "Unsatisfied model: " << model->toString() << endl;
