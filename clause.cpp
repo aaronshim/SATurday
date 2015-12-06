@@ -37,6 +37,9 @@ vector<Literal *> Clause::getLiterals() {
 }
 
 bool Clause::checkSat(Model *model) {
+  // edge casing: empty clauses are always satisfiable
+  if (nLiterals <= 0) return true;
+
   // Check each literal for true.
   for (int i = 0; i < nLiterals; i ++) {
     int vari = literals[i]->getIndex();
@@ -50,6 +53,10 @@ bool Clause::checkSat(Model *model) {
 }
 
 bool Clause::checkUnsat(Model *model) {
+  // edge casing
+  // (empty clause is inherently satisfiable)
+  if (nLiterals <= 0) return false;  
+
   // Check each literal for true.
   for (int i = 0; i < nLiterals; i ++) {
     int vari = literals[i]->getIndex();
@@ -82,7 +89,8 @@ int Clause::containsLiteral(Literal *literal) {
 
 // return value is true for success
 bool Clause::deleteAllLiterals() {
-  if (nLiterals <= 0) return false;
+  // don't touch clauses of one literal
+  if (nLiterals <= 1) return false;
   nLiterals = 0;
   // hopefully shouldn't touch the literals data itself
   // because we only had them in the vector through pointers
