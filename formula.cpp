@@ -7,6 +7,7 @@ public:
   bool checkSat(Model *model);
   bool checkUnsat(Model *model);
   void unitPropagate();
+  void removeAllEmptyClauses();
 
   Formula *clone();
   string toString();
@@ -79,8 +80,18 @@ void Formula::unitPropagate() {
      }
    }
  }
-
+ removeAllEmptyClauses();
  cout << "UNIT PROPOGATION FINISHED\n" << toString();
+}
+
+void Formula::removeAllEmptyClauses() {
+  for (int i = 0; i < nClauses; ++i) {
+    if (clauses[i]->getNumLiterals() <= 0) {
+      clauses.erase(clauses.begin() + i);
+      --i;
+      --nClauses;
+    } 
+  }
 }
 
 void Formula::addClause(Clause *clause) {
