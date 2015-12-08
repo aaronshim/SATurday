@@ -90,8 +90,8 @@ num_tests_failed = 0
 time_ours_sum = 0
 time_minisat_sum = 0
 
+FileUtils.mkdir directory
 # if options[:save]
-#   FileUtils.mkdir directory
 #   FileUtils.cd directory
 # end
 options[:times].times do |i|
@@ -109,7 +109,7 @@ options[:times].times do |i|
     s << vars.inject("") {|l, r| neg = rand <= options[:neg_prob] ? -1 : 1; l + "#{r*neg} "} << "0\n"
   end
   s << "\n"
-  test_case_in = "t#{i}.in"
+  test_case_in = "#{directory}/t#{i}.in"
   IO.write(test_case_in, s)
 
   # Run both tests and compare
@@ -134,8 +134,8 @@ options[:times].times do |i|
     num_tests_failed+=1
   end
   if options[:save]
-    IO.write("t#{i}.out", test_case_out)
-    IO.write("t#{i}.out.minisat", test_case_out_reference)
+    IO.write("#{directory}/t#{i}.out", test_case_out)
+    IO.write("#{directory}/t#{i}.out.minisat", test_case_out_reference)
   else
     FileUtils.rm(test_case_in)
   end
