@@ -115,6 +115,7 @@ options[:times].times do |i|
   # Run both tests and compare
   puts "Running test case #{i}"
   t = Time.now
+  puts "#{current_directory}/saturday #{test_case_in}"
   test_case_out = `#{current_directory}/saturday #{test_case_in}`
   time_ours = Time.now - t
   time_ours_sum += time_ours
