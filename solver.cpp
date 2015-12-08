@@ -30,6 +30,7 @@ Model *Solver::solveR(Formula *formula, Model *model, int backtrackDepth) {
   invariant(formula != NULL, 2331);
 
   //formula->unitPropagate();
+  formula->simplify(model);
 
   // Check if model unsatisfies formula, and if so, return null.
   if (formula->checkUnsat(model)) {
