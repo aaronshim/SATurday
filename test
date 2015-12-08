@@ -83,7 +83,7 @@ end.parse!
 
 # RUN TESTS
 current_directory = FileUtils.pwd
-directory = "tests#{Time.now}"
+directory = "tests#{Time.now.strftime("%Y%m%d%H%M%S")}"
 
 # global counter variables
 num_tests_failed = 0
