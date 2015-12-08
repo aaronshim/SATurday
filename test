@@ -100,8 +100,7 @@ options[:times].times do |i|
     n = (options[:clause_length_min]..options[:clause_length_max]).to_a.sample if n.nil?
     # sample n variables without replacement
     vars = (1..options[:num_var]).to_a.shuffle.take n
-    neg = rand <= options[:neg_prob] ? -1 : 1
-    s << vars.inject("") {|l, r| l + "#{r*neg} "} << "0\n"
+    s << vars.inject("") {|l, r| neg = rand <= options[:neg_prob] ? -1 : 1; l + "#{r*neg} "} << "0\n"
   end
   s << "\n"
   test_case_in = "t#{i}.in"
@@ -115,6 +114,14 @@ options[:times].times do |i|
   t = Time.now
   test_case_out_reference = `minisat #{test_case_in}`
   puts "MiniSAT took #{Time.now - t} seconds"
+  # should we guard against error answers?
+  ours_answer = (/UNSATISFIABLE/ =~ test_case_out).nil? && !(/SATISFIABLE/ =~ test_case_out).nil?
+  minisat_answer = (/UNSATISFIABLE/ =~ test_case_out_reference).nil? && !(/SATISFIABLE/ =~ test_case_out_reference).nil?
+  if ours_answer == minisat_answer
+  	puts "Both solvers agree on satisfiability #{ours_answer}"
+  else
+  	puts "ERROR: Ours says satisfiability #{ours_answer} but MiniSAT says satisfiability #{minisat_answer}"
+  end
   if options[:save]
     IO.write("t#{i}.out", test_case_out)
     IO.write("t#{i}.out.minisat", test_case_out_reference)
