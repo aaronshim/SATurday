@@ -84,6 +84,12 @@ end.parse!
 # RUN TESTS
 current_directory = FileUtils.pwd
 directory = "tests#{Time.now}"
+
+# global counter variables
+num_tests_failed = 0
+time_ours_sum = 0
+time_minisat_sum = 0
+
 if options[:save]
   FileUtils.mkdir directory
   FileUtils.cd directory
@@ -110,17 +116,22 @@ options[:times].times do |i|
   puts "Running test case #{i}"
   t = Time.now
   test_case_out = `#{current_directory}/saturday #{test_case_in}`
-  puts "Our SAT took #{Time.now - t} seconds"
+  time_ours = Time.now - t
+  time_ours_sum += time_ours
+  puts "Our SAT took #{time_ours} seconds"
   t = Time.now
   test_case_out_reference = `minisat #{test_case_in}`
-  puts "MiniSAT took #{Time.now - t} seconds"
+  time_minisat = Time.now - t
+  time_minisat_sum += time_minisat
+  puts "MiniSAT took #{time_minisat} seconds"
   # should we guard against error answers?
   ours_answer = (/UNSATISFIABLE/ =~ test_case_out).nil? && !(/SATISFIABLE/ =~ test_case_out).nil?
   minisat_answer = (/UNSATISFIABLE/ =~ test_case_out_reference).nil? && !(/SATISFIABLE/ =~ test_case_out_reference).nil?
   if ours_answer == minisat_answer
-  	puts "Both solvers agree on satisfiability #{ours_answer}"
+    puts "Both solvers agree on satisfiability #{ours_answer}"
   else
-  	puts "ERROR: Ours says satisfiability #{ours_answer} but MiniSAT says satisfiability #{minisat_answer}"
+    puts "ERROR: Ours says satisfiability #{ours_answer} but MiniSAT says satisfiability #{minisat_answer}"
+    num_tests_failed+=1
   end
   if options[:save]
     IO.write("t#{i}.out", test_case_out)
@@ -128,6 +139,12 @@ options[:times].times do |i|
   else
     FileUtils.rm(test_case_in)
   end
+  #puts "Failed #{num_tests_failed} tests"
   puts "="*78
 end
+
+puts "Failed #{num_tests_failed} tests"
+puts "SATurday took a total of #{time_ours_sum} seconds"
+puts "Minisat took a total of #{time_minisat_sum} seconds"
+puts "SATurday took #{time_ours_sum.to_f/time_minisat_sum} times MiniSAT"
 

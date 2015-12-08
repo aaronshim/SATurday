@@ -51,6 +51,7 @@ Model *Solver::solveR(Model *model, int backtrackDepth) {
 
   // Should we try setting the literal or clearing the literal first?
   int firstSet = rand() % 2;
+  //int firstSet = 0;
 
   if (DEBUG >= 5)
     cout << "firstSet = " << firstSet << endl;
