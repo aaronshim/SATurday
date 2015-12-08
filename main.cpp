@@ -43,7 +43,8 @@ int main(int argc, char **argv) {
   Formula *formula = Parser::parse(file);
   fclose(file);
 
-  cout << formula->toString();
+  if (DEBUG >= 5)
+    cout << formula->toString();
 
   // // model testing code
   // Model *testModel = new Model(5);
