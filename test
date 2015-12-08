@@ -2,6 +2,7 @@
 
 require 'optparse'
 require 'fileutils'
+require 'shellwords'
 
 # HARD CODED CONSTANTS
 NUM_VAR_MIN = 5
@@ -116,12 +117,12 @@ options[:times].times do |i|
   puts "Running test case #{i}"
   t = Time.now
   puts "#{current_directory}/saturday #{test_case_in}"
-  test_case_out = `#{current_directory}/saturday #{test_case_in}`
+  test_case_out = `#{current_directory.shellescape}/saturday #{test_case_in.shellescape}`
   time_ours = Time.now - t
   time_ours_sum += time_ours
   puts "Our SAT took #{time_ours} seconds"
   t = Time.now
-  test_case_out_reference = `minisat #{test_case_in}`
+  test_case_out_reference = `minisat #{test_case_in.shellescape}`
   time_minisat = Time.now - t
   time_minisat_sum += time_minisat
   puts "MiniSAT took #{time_minisat} seconds"

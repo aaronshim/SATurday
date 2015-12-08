@@ -1,0 +1,45 @@
+1) How to run SAT solver
+
+make
+./saturday <testcase>
+
+2) Members in group and the division of work
+
+Aaron Shim
+Qingyang Chen
+
+Pair programmed
+
+3) Extensions
+
+- randomization of recursive branching
+- restarting backtrack when over cutoff
+- generalized optimization on literal choice
+- clause trimming
+- logical solving before complete search
+
+4) Time taken
+
+About 15 hours each
+
+5) Programming language
+
+C++
+
+6) Biggest challenge
+
+Everytime we wrote an optimization, it would break. Because we would have to
+figure out how many cases were actually broken, we appreciated having our
+automated test script check that we sufficiently debugged each extension back to
+a baseline functionality before moving on.
+
+7) Udder stuff
+
+Our solver performs comparatively to MiniSAT, and beats MiniSAT on certain cases.
+We wrote a testing script that can compare the speeds of any two SAT solvers.
+There were many other extensions and microextensions we wanted to implement, or
+did implement but discarded afterwards.
+
+To run our testing script:
+1) Install minisat
+2) Run ./test (see script for parameters or changing the SAT solver to test against minisat)
