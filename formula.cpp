@@ -22,7 +22,7 @@ private:
 // The theory is to see what literals there are and then simplify
 //  each clause based on whether they contain that literal or not.
 void Formula::unitPropagate() {
-  cout << "\nUNIT PROPOGATION STARTED\n" << toString();
+  //cout << "\nUNIT PROPOGATION STARTED\n" << toString();
   
   // in order to prevent this algorithm from running quadratic
   //  we first should keep a tally of which literals appear in
@@ -48,6 +48,7 @@ void Formula::unitPropagate() {
     }
   }
 
+/*
   // optional structure print-and-test
   cout << "\nOur tally structure:\n";
   for (int i = 0; i < nVars; ++i) {
@@ -58,24 +59,25 @@ void Formula::unitPropagate() {
     cout << "\n";
   }
   cout << endl;
+*/
 
  // now for the real fun-- for each literal, fix every clause
  for (auto l : literals) {
    for (auto c : lookup[l->getIndex()]) {
-     cout << "Looking for literal " << l->toString() << " in (" << c->toString() << ")" << endl;
+     //cout << "Looking for literal " << l->toString() << " in (" << c->toString() << ")" << endl;
      int contains = c->containsLiteral(l);
-     cout << "Result: " << contains << endl;
+     //cout << "Result: " << contains << endl;
      if (contains == 1) {
         // contains exactly that literal
         // (we will remove the entire clause)
-        cout << "Deleting clause (" << c->toString() << ")" << endl;
+        //cout << "Deleting clause (" << c->toString() << ")" << endl;
         c->deleteAllLiterals();
      }
      else if (contains == -1) {
        // contains negation of that literal
        // (we will remove the literal from the clause)
        l->flipIsSet();
-       cout << "Deleting the literal " << l->toString() << " from clause (" << c->toString() << ")" << endl;
+       //cout << "Deleting the literal " << l->toString() << " from clause (" << c->toString() << ")" << endl;
        c->deleteExactLiteral(l);
        l->flipIsSet(); // put it back to the state we found it in
                        // for the rest of the loop
@@ -87,7 +89,7 @@ void Formula::unitPropagate() {
    }
  }
  removeAllEmptyClauses();
- cout << "UNIT PROPOGATION FINISHED\n" << toString();
+ //cout << "UNIT PROPOGATION FINISHED\n" << toString();
 }
 
 void Formula::removeAllEmptyClauses() {
