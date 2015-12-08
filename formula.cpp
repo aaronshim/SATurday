@@ -3,10 +3,13 @@ public:
   Formula(int nVars) : nVars(nVars) {};
   ~Formula();
   void addClause(Clause *clause);
+  const vector<Clause *>& getClauses();
   int getNVars();
   bool checkSat(Model *model);
   bool checkUnsat(Model *model);
   void simplify(Model *model);
+
+  int nextVar(); // Gets the index of the next unassigned var.
 
   Formula *clone();
   string toString();
@@ -14,7 +17,7 @@ public:
 private:
   int nClauses = 0;
   int nVars;
-  void unitPropagate();
+  void unitPropagate(Model *model);
   void deleteSatisfied(Model *model);
   void removeAllEmptyClauses();
   vector<Clause *> clauses;
@@ -26,10 +29,16 @@ Formula::~Formula() {
   }
 }
 
+const vector<Clause *>& Formula::getClauses() {
+  return clauses;
+}
+
 // Our attempt at unit-propagation pre-processing simplification.
 // The theory is to see what literals there are and then simplify
 //  each clause based on whether they contain that literal or not.
-void Formula::unitPropagate() {
+void Formula::unitPropagate(Model *model) {
+  // TODO: MAKE THIS DECIDE THE ACTUAL VARIABLE IN THE MODEL
+
   //cout << "\nUNIT PROPOGATION STARTED\n" << toString();
 
   // in order to prevent this algorithm from running quadratic
@@ -114,7 +123,7 @@ void Formula::deleteSatisfied(Model *model) {
 
 // This should be the one method that the solver calls
 void Formula::simplify(Model *model) {
-  unitPropagate();
+  unitPropagate(model);
   deleteSatisfied(model);
   removeAllEmptyClauses();
 }
@@ -155,6 +164,22 @@ bool Formula::checkUnsat(Model *model) {
   }
 
   return false;
+}
+
+int Formula::nextVar() {
+  // Find the clause with lowest number of undecided literals.
+  Clause *minClause = NULL;
+  for (auto c : clauses) {
+    if (!minClause || c->getNumLiterals() < minClause->getNumLiterals()) {
+      minClause = c;
+    }
+  }
+  invariant(minClause, 4939);
+
+  // Use first literal?
+  int vari = minClause->getFirstLiteralIndex();
+
+  return vari;
 }
 
 Formula *Formula::clone() {

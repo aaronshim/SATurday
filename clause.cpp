@@ -4,6 +4,7 @@ public:
   void addLiteral(int vari, bool isSet);
   void addLiteral(Literal *literal);
   vector<Literal *> getLiterals();
+  int getFirstLiteralIndex();
   int getNumLiterals();
   bool checkSat(Model *model);
   bool checkUnsat(Model *model);
@@ -42,6 +43,11 @@ int Clause::getNumLiterals() {
 
 vector<Literal *> Clause::getLiterals() {
   return literals;
+}
+
+int Clause::getFirstLiteralIndex() {
+  invariant(literals.size() > 0, 9348);
+  return literals[0]->getIndex();
 }
 
 bool Clause::checkSat(Model *model) {

@@ -63,8 +63,8 @@ Model *Solver::solveR(Formula *formula, Model *model, int backtrackDepth) {
     return model->clone();
   }
 
-  int nextIndex = model->nextVar();
-  if (nextIndex == -1) return NULL;
+  int nextIndex = formula->nextVar();
+  invariant(!model->isAssigned(nextIndex), 1940);
 
   // Should we try setting the literal or clearing the literal first?
   int firstSet = rand() % 2;

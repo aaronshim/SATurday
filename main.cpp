@@ -12,7 +12,10 @@ using namespace std;
 #define GLOBAL_CUTOFF 200
 
 void invariant(bool inv, int num) {
-  if (!inv) throw num;
+  if (!inv) {
+    cerr << "Invariant failed " << num << endl;
+    throw num;
+  }
 }
 
 #include "model.cpp"
