@@ -90,10 +90,10 @@ num_tests_failed = 0
 time_ours_sum = 0
 time_minisat_sum = 0
 
-if options[:save]
-  FileUtils.mkdir directory
-  FileUtils.cd directory
-end
+# if options[:save]
+#   FileUtils.mkdir directory
+#   FileUtils.cd directory
+# end
 options[:times].times do |i|
   options[:num_var] ||= (options[:num_var_min]..options[:num_var_max]).to_a.sample
   options[:num_clause] ||= (options[:num_clause_min]..options[:num_clause_max]).to_a.sample

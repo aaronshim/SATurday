@@ -3,16 +3,11 @@ public:
   ~Clause();
   void addLiteral(int vari, bool isSet);
   void addLiteral(Literal *literal);
-  vector<Literal *> getLiterals();
   int getFirstLiteralIndex();
   Literal *getFirstLiteral();
   int getNumLiterals();
   bool checkSat(Model *model);
-  bool checkUnsat(Model *model);
-  int containsLiteral(Literal *literal);
-  void deleteAllLiterals();
-  bool deleteExactLiteral(Literal *literal);
-  void deleteOffendingLiterals(Model *model);
+  bool deleteOffendingLiterals(Model *model);
 
   Clause *clone();
   string toString();
@@ -42,10 +37,6 @@ int Clause::getNumLiterals() {
   return nLiterals;
 }
 
-vector<Literal *> Clause::getLiterals() {
-  return literals;
-}
-
 int Clause::getFirstLiteralIndex() {
   invariant(literals.size() > 0, 9348);
   return literals[0]->getIndex();
@@ -57,14 +48,13 @@ Literal *Clause::getFirstLiteral() {
 }
 
 bool Clause::checkSat(Model *model) {
-  // edge casing: empty clauses are always satisfiable
-  if (nLiterals <= 0) return true;
-
   // Check each literal for true.
   for (int i = 0; i < nLiterals; i ++) {
     int vari = literals[i]->getIndex();
     bool varPos = literals[i]->getIsSet();
+
     if (!model->isAssigned(vari)) continue;
+
     bool varSet = model->checkVar(vari);
     if (varSet == varPos) return true;
   }
@@ -72,81 +62,27 @@ bool Clause::checkSat(Model *model) {
   return false;
 }
 
-bool Clause::checkUnsat(Model *model) {
-  // edge casing
-  // (empty clause is inherently satisfiable)
-  if (nLiterals <= 0) return false;
-
-  // Check each literal for true.
+// For simplification, if there are literals in the clause that
+// cannot be satisfied given the current model, we remove them
+// from the clause.
+// Returns true if we have end up with unsatisfiable empty clause.
+bool Clause::deleteOffendingLiterals(Model *model) {
   for (int i = 0; i < nLiterals; i ++) {
     int vari = literals[i]->getIndex();
     bool varPos = literals[i]->getIsSet();
-    if (!model->isAssigned(vari)) return false;
-    bool varSet = model->checkVar(vari);
-    if (varSet == varPos) return false;
-  }
 
-  return true;
-}
+    if (!model->isAssigned(vari)) continue;
 
-// 1 if literal matches, 0 if literal not there
-//  -1 if reverse literal there
-//  (exact literals take precedence if both exact and negation exist)
-int Clause::containsLiteral(Literal *literal) {
-  int returnVal = 0;
-  for (int i = 0; i < nLiterals; ++i) {
-    if (literals[i]->getIndex() == literal->getIndex()) {
-      if (literals[i]->getIsSet() == literal->getIsSet()) {
-        return 1;
-      }
-      // exact match has to take precedence, so only return if no
-      // exact match is found later on
-      returnVal = -1;
-    }
-  }
-  return returnVal;
-}
-
-// return value is true for success
-void Clause::deleteAllLiterals() {
-  nLiterals = 0;
-  // hopefully shouldn't touch the literals data itself
-  // because we only had them in the vector through pointers
-  for (auto l : literals) {
-    delete l;
-  }
-  literals.clear();
-}
-
-// return value is true for success
-// (return value is false if literal does not exist)
-bool Clause::deleteExactLiteral(Literal* literal) {
-  // should not touch clauses of one literal
-  if (nLiterals <= 1) return false;
-  bool deleted = false;
-  for (int i = 0; i < nLiterals; ++i) {
-    if (literal->getIndex() == literals[i]->getIndex() &&
-        literal->getIsSet() == literals[i]->getIsSet()) {
+    if (model->checkVar(vari) != varPos) {
       delete literals[i];
       literals.erase(literals.begin() + i);
-      --i; // gotta keep looking in case multiple literals here
-      --nLiterals;
-      deleted = true;
+
+      i --;
+      nLiterals --;
     }
   }
-  return deleted;
-}
 
-// For simplification, if there are literals in the clause that
-// cannot be satisfied given the current model, we remove them
-// from the clause
-void Clause::deleteOffendingLiterals(Model *model) {
-  for (auto l : literals) {
-    int vari = l->getIndex();
-    bool varPos = l->getIsSet();
-    if (!model->isAssigned(vari)) continue;
-    if (model->checkVar(vari) != varPos) deleteExactLiteral(l);
-  }
+  return literals.size() == 0;
 }
 
 Clause *Clause::clone() {

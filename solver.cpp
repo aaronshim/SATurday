@@ -42,24 +42,20 @@ Model *Solver::solve(Formula *formula) {
 Model *Solver::solveR(Formula *formula, Model *model, int backtrackDepth) {
   invariant(formula != NULL, 2331);
 
-  formula->simplify(model);
-
   // Restart solver if nodes failed is above cutoff.
   if (nodesFailed >= CUTOFF) {
     return NULL;
   }
 
-  // Check if model unsatisfies formula, and if so, return null.
-  if (formula->checkUnsat(model)) {
-    if (DEBUG >= 5)
-      cout << "Unsatisfied model: " << model->toString() << endl;
-    return NULL;
-  }
-
-  // Check if model satisfies formula, and if so, return it.
-  if (formula->checkSat(model)) {
-    model->complete();
-    return model->clone();
+  int state = formula->simplify(model);
+  switch (state) {
+    case -1: // If unsat, return null.
+      if (DEBUG >= 5)
+        cout << "Unsatisfied model: " << model->toString() << endl;
+      return NULL;
+    case 1: // If sat, return the model.
+      model->complete();
+      return model->clone();
   }
 
   int nextIndex = formula->nextVar();

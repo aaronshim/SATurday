@@ -7,7 +7,7 @@ public:
   int getNVars();
   bool checkSat(Model *model);
   bool checkUnsat(Model *model);
-  void simplify(Model *model);
+  int simplify(Model *model);
 
   int nextVar(); // Gets the index of the next unassigned var.
 
@@ -17,9 +17,8 @@ public:
 private:
   int nClauses = 0;
   int nVars;
-  void unitPropagate(Model *model);
-  void deleteSatisfied(Model *model);
-  void removeAllEmptyClauses();
+  bool unitPropagate(Model *model);
+  bool deleteSatisfied(Model *model);
   vector<Clause *> clauses;
 };
 
@@ -36,8 +35,8 @@ const vector<Clause *>& Formula::getClauses() {
 // Our attempt at unit-propagation pre-processing simplification.
 // The theory is to see what literals there are and then simplify
 //  each clause based on whether they contain that literal or not.
-void Formula::unitPropagate(Model *model) {
-  // TODO: MAKE THIS DECIDE THE ACTUAL VARIABLE IN THE MODEL
+bool Formula::unitPropagate(Model *model) {
+  bool changed = false;
 
   // For all singule-literal clauses, decide for that variable.
   for (auto c : clauses) {
@@ -50,37 +49,46 @@ void Formula::unitPropagate(Model *model) {
     } else {
       model->clearVar(vari);
     }
+
+    changed = true;
   }
+
+  return changed;
 }
 
 // If entire clause is satisfied, drop it
 // If not, find the unsatisfied literals and drop those
-void Formula::deleteSatisfied(Model *model) {
-  for (auto c : clauses) {
-    if (c->checkSat(model)) {
-      c->deleteAllLiterals();
+// Returns true if the formula overall becomes unsat
+bool Formula::deleteSatisfied(Model *model) {
+  for (int i = 0; i < nClauses; i ++) {
+    if (clauses[i]->checkSat(model)) {
+      delete clauses[i];
+      clauses.erase(clauses.begin() + i);
+
+      i --;
+      nClauses --;
     } else {
-      c->deleteOffendingLiterals(model);
+      if (clauses[i]->deleteOffendingLiterals(model)) {
+        return true;
+      }
     }
   }
+
+  return false;
 }
 
 // This should be the one method that the solver calls
-void Formula::simplify(Model *model) {
-  unitPropagate(model);
-  deleteSatisfied(model);
-  removeAllEmptyClauses();
-}
+int Formula::simplify(Model *model) {
+  bool changed = true;
 
-// For cleanup during simplification procedure
-void Formula::removeAllEmptyClauses() {
-  for (int i = 0; i < nClauses; ++i) {
-    if (clauses[i]->getNumLiterals() <= 0) {
-      clauses.erase(clauses.begin() + i);
-      --i;
-      --nClauses;
-    }
+  while (changed) {
+    changed = unitPropagate(model);
+    if (deleteSatisfied(model)) return -1;
   }
+
+  if (checkSat(model)) return 1;
+
+  return 0;
 }
 
 void Formula::addClause(Clause *clause) {
@@ -93,21 +101,7 @@ int Formula::getNVars() {
 }
 
 bool Formula::checkSat(Model *model) {
-  // Check each clause against model.
-  for (int i = 0; i < nClauses; i ++) {
-    if (!clauses[i]->checkSat(model)) return false;
-  }
-
-  return true;
-}
-
-bool Formula::checkUnsat(Model *model) {
-  // Check each clause against model.
-  for (int i = 0; i < nClauses; i ++) {
-    if (clauses[i]->checkUnsat(model)) return true;
-  }
-
-  return false;
+  return nClauses == 0;
 }
 
 int Formula::nextVar() {

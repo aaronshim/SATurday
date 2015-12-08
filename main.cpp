@@ -8,7 +8,7 @@
 #include <string.h>
 using namespace std;
 
-#define DEBUG 2
+#define DEBUG 0
 #define GLOBAL_CUTOFF 200
 
 void invariant(bool inv, int num) {
