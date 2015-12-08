@@ -5,11 +5,12 @@ public:
   void addLiteral(Literal *literal);
   vector<Literal *> getLiterals();
   int getFirstLiteralIndex();
+  Literal *getFirstLiteral();
   int getNumLiterals();
   bool checkSat(Model *model);
   bool checkUnsat(Model *model);
   int containsLiteral(Literal *literal);
-  bool deleteAllLiterals();
+  void deleteAllLiterals();
   bool deleteExactLiteral(Literal *literal);
   void deleteOffendingLiterals(Model *model);
 
@@ -48,6 +49,11 @@ vector<Literal *> Clause::getLiterals() {
 int Clause::getFirstLiteralIndex() {
   invariant(literals.size() > 0, 9348);
   return literals[0]->getIndex();
+}
+
+Literal *Clause::getFirstLiteral() {
+  invariant(literals.size() > 0, 9349);
+  return literals[0];
 }
 
 bool Clause::checkSat(Model *model) {
@@ -102,14 +108,14 @@ int Clause::containsLiteral(Literal *literal) {
 }
 
 // return value is true for success
-bool Clause::deleteAllLiterals() {
-  // don't touch clauses of one literal
-  if (nLiterals <= 1) return false;
+void Clause::deleteAllLiterals() {
   nLiterals = 0;
   // hopefully shouldn't touch the literals data itself
   // because we only had them in the vector through pointers
+  for (auto l : literals) {
+    delete l;
+  }
   literals.clear();
-  return true;
 }
 
 // return value is true for success
@@ -119,7 +125,9 @@ bool Clause::deleteExactLiteral(Literal* literal) {
   if (nLiterals <= 1) return false;
   bool deleted = false;
   for (int i = 0; i < nLiterals; ++i) {
-    if (literal->getIndex() == literals[i]->getIndex() && literal->getIsSet() == literals[i]->getIsSet()) {
+    if (literal->getIndex() == literals[i]->getIndex() &&
+        literal->getIsSet() == literals[i]->getIsSet()) {
+      delete literals[i];
       literals.erase(literals.begin() + i);
       --i; // gotta keep looking in case multiple literals here
       --nLiterals;
@@ -133,11 +141,11 @@ bool Clause::deleteExactLiteral(Literal* literal) {
 // cannot be satisfied given the current model, we remove them
 // from the clause
 void Clause::deleteOffendingLiterals(Model *model) {
-  for (int i = 0; i < nLiterals; ++i) {
-    int vari = literals[i]->getIndex();
-    bool varPos = literals[i]->getIsSet();
+  for (auto l : literals) {
+    int vari = l->getIndex();
+    bool varPos = l->getIsSet();
     if (!model->isAssigned(vari)) continue;
-    if (model->checkVar(vari) != varPos) deleteExactLiteral(literals[i]);
+    if (model->checkVar(vari) != varPos) deleteExactLiteral(l);
   }
 }
 
