@@ -62,17 +62,23 @@ void Formula::unitPropagate() {
  // now for the real fun-- for each literal, fix every clause
  for (auto l : literals) {
    for (auto c : lookup[l->getIndex()]) {
+     cout << "Looking for literal " << l->toString() << " in (" << c->toString() << ")" << endl;
      int contains = c->containsLiteral(l);
+     cout << "Result: " << contains << endl;
      if (contains == 1) {
         // contains exactly that literal
         // (we will remove the entire clause)
+        cout << "Deleting clause (" << c->toString() << ")" << endl;
         c->deleteAllLiterals();
      }
      else if (contains == -1) {
        // contains negation of that literal
        // (we will remove the literal from the clause)
        l->flipIsSet();
+       cout << "Deleting the literal " << l->toString() << " from clause (" << c->toString() << ")" << endl;
        c->deleteExactLiteral(l);
+       l->flipIsSet(); // put it back to the state we found it in
+                       // for the rest of the loop
      }
      else {
        // should never get here, because this is the list of clauses
