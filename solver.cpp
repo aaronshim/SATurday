@@ -1,20 +1,18 @@
 class Solver {
 public:
-  static Model *solve(Formula *f);
+  static Model *solve(Formula *formula);
 
 private:
-  static Model *solveR(Model *model, int backtrackDepth);
-  static Model *solveRClone(Model *model, int index, int setVar, int backtrackDepth);
+  static Model *solveR(Formula *formula, Model *model, int backtrackDepth);
+  static Model *solveRClone(Formula *formula, Model *model, int index, int setVar, int backtrackDepth);
 
-  static Formula *formula;
   static int maxDepth;
 };
 
-Formula *Solver::formula = NULL;
 int Solver::maxDepth = 0;
 
-Model *Solver::solve(Formula *f) {
-  Model *model = new Model(f->getNVars());
+Model *Solver::solve(Formula *formula) {
+  Model *model = new Model(formula->getNVars());
 
   // // This is just testing code.
   // model->setVar(0);
@@ -23,17 +21,15 @@ Model *Solver::solve(Formula *f) {
   // cout << model->toString() << endl;
 
   // Setup.
-  formula = f;
   srand(time(NULL));
 
-  return solveR(model, 0);
+  return solveR(formula, model, 0);
 }
 
-Model *Solver::solveR(Model *model, int backtrackDepth) {
+Model *Solver::solveR(Formula *formula, Model *model, int backtrackDepth) {
   invariant(formula != NULL, 2331);
 
-  // have to clone formula to use unitPropagate()
-  //formula->unitPropogate();
+  //formula->unitPropagate();
 
   // Check if model unsatisfies formula, and if so, return null.
   if (formula->checkUnsat(model)) {
@@ -69,7 +65,7 @@ Model *Solver::solveR(Model *model, int backtrackDepth) {
     cout << "progress: " << backtrackDepth << "/" << formula->getNVars() << endl;
   }
 
-  if ((retModel = solveRClone(model, nextIndex, firstSet, backtrackDepth + 1))) {
+  if ((retModel = solveRClone(formula, model, nextIndex, firstSet, backtrackDepth + 1))) {
     return retModel;
   }
 
@@ -77,7 +73,7 @@ Model *Solver::solveR(Model *model, int backtrackDepth) {
     cout << "Backtracking... depth=" << backtrackDepth << endl;
   }
 
-  if ((retModel = solveRClone(model, nextIndex, !firstSet, backtrackDepth + 1))) {
+  if ((retModel = solveRClone(formula, model, nextIndex, !firstSet, backtrackDepth + 1))) {
     return retModel;
   }
 
@@ -85,12 +81,15 @@ Model *Solver::solveR(Model *model, int backtrackDepth) {
   return NULL;
 }
 
-Model *Solver::solveRClone(Model *model, int index, int setVar, int backtrackDepth) {
+Model *Solver::solveRClone(Formula *formula, Model *model, int index, int setVar, int backtrackDepth) {
   Model *modelClone = model->clone();
+  Formula *formulaClone = formula->clone();
   if (setVar) {
     modelClone->setVar(index);
   } else {
     modelClone->clearVar(index);
   }
-  return solveR(modelClone, backtrackDepth + 1);
+  Model *retModel = solveR(formulaClone, modelClone, backtrackDepth + 1);
+  delete formulaClone;
+  return retModel;
 }
