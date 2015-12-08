@@ -1,11 +1,18 @@
 #include <iostream>
 #include <stdio.h>
+#include <stdlib.h>
 #include <vector>
 #include <cmath>
 #include <string>
 #include <sstream>
 #include <string.h>
 using namespace std;
+
+#define DEBUG 2
+
+void invariant(bool inv, int num) {
+  if (!inv) throw num;
+}
 
 #include "model.cpp"
 #include "literal.cpp"
