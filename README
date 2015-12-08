@@ -43,3 +43,8 @@ did implement but discarded afterwards.
 To run our testing script:
 1) Install minisat
 2) Run ./test (see script for parameters or changing the SAT solver to test against minisat)
+
+Complete list of options can be found by running ./test --help
+Some of the highlights include testing against custom executables by passing in the -e flag
+(Hence, this test script will work against any other SAT solver contender compiled to an 
+ executable that takes in a file input as a command line argument.)
