@@ -43,6 +43,7 @@ Model *Solver::solveR(Formula *formula, Model *model, int backtrackDepth) {
   invariant(formula != NULL, 2331);
 
   //formula->unitPropagate();
+  formula->simplify(model);
 
   // Restart solver if nodes failed is above cutoff.
   if (nodesFailed >= CUTOFF) {

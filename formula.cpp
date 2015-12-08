@@ -6,8 +6,7 @@ public:
   int getNVars();
   bool checkSat(Model *model);
   bool checkUnsat(Model *model);
-  void unitPropagate();
-  void removeAllEmptyClauses();
+  void simplify(Model *model);
 
   Formula *clone();
   string toString();
@@ -15,6 +14,9 @@ public:
 private:
   int nClauses = 0;
   int nVars;
+  void unitPropagate();
+  void deleteSatisfied(Model *model);
+  void removeAllEmptyClauses();
   vector<Clause *> clauses;
 };
 
@@ -94,10 +96,30 @@ void Formula::unitPropagate() {
      }
    }
  }
- removeAllEmptyClauses();
  //cout << "UNIT PROPOGATION FINISHED\n" << toString();
 }
 
+// If entire clause is satisfied, drop it
+// If not, find the unsatisfied literals and drop those
+void Formula::deleteSatisfied(Model *model) {
+  for (auto c : clauses) {
+    if (c->checkSat(model)) {
+      c->deleteAllLiterals();
+    }
+    else {
+      c->deleteOffendingLiterals(model);
+    }
+  }
+}
+
+// This should be the one method that the solver calls
+void Formula::simplify(Model *model) {
+  unitPropagate();
+  deleteSatisfied(model);
+  removeAllEmptyClauses();
+}
+
+// For cleanup during simplification procedure
 void Formula::removeAllEmptyClauses() {
   for (int i = 0; i < nClauses; ++i) {
     if (clauses[i]->getNumLiterals() <= 0) {
