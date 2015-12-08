@@ -9,6 +9,7 @@
 using namespace std;
 
 #define DEBUG 2
+#define GLOBAL_CUTOFF 200
 
 void invariant(bool inv, int num) {
   if (!inv) throw num;

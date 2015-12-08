@@ -1,5 +1,6 @@
 class Clause {
 public:
+  ~Clause();
   void addLiteral(int vari, bool isSet);
   void addLiteral(Literal *literal);
   vector<Literal *> getLiterals();
@@ -17,6 +18,12 @@ private:
   int nLiterals = 0;
   vector<Literal *> literals;
 };
+
+Clause::~Clause() {
+  for (auto l : literals) {
+    delete l;
+  }
+}
 
 void Clause::addLiteral(int vari, bool isSet) {
   literals.push_back(new Literal(vari, isSet));
@@ -55,7 +62,7 @@ bool Clause::checkSat(Model *model) {
 bool Clause::checkUnsat(Model *model) {
   // edge casing
   // (empty clause is inherently satisfiable)
-  if (nLiterals <= 0) return false;  
+  if (nLiterals <= 0) return false;
 
   // Check each literal for true.
   for (int i = 0; i < nLiterals; i ++) {

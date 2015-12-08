@@ -4,6 +4,7 @@ class Model {
     int* vars;
   public:
     Model(int nVars);
+    ~Model();
     void setVars(int newVars[]);
     // WARNING: THE FOLLOWING METHODS ARE INDEXED AT 0
     void setVar(int i); // sets our variable positive
@@ -21,6 +22,10 @@ Model::Model(int nVars) : nVars(nVars) {
   // make new array and set it all to 0 (default unset value)
   vars = new int[nVars];
   memset(vars, 0, sizeof(int)*nVars);
+}
+
+Model::~Model() {
+  delete vars;
 }
 
 // we really hope that the newVars array is the same size

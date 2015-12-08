@@ -1,7 +1,7 @@
 class Formula {
 public:
-  Formula(int nVars)
-    : nVars(nVars) {};
+  Formula(int nVars) : nVars(nVars) {};
+  ~Formula();
   void addClause(Clause *clause);
   int getNVars();
   bool checkSat(Model *model);
@@ -18,12 +18,18 @@ private:
   vector<Clause *> clauses;
 };
 
+Formula::~Formula() {
+  for (auto c : clauses) {
+    delete c;
+  }
+}
+
 // Our attempt at unit-propagation pre-processing simplification.
 // The theory is to see what literals there are and then simplify
 //  each clause based on whether they contain that literal or not.
 void Formula::unitPropagate() {
   //cout << "\nUNIT PROPOGATION STARTED\n" << toString();
-  
+
   // in order to prevent this algorithm from running quadratic
   //  we first should keep a tally of which literals appear in
   //  which clauses (for easier simplification)
@@ -98,7 +104,7 @@ void Formula::removeAllEmptyClauses() {
       clauses.erase(clauses.begin() + i);
       --i;
       --nClauses;
-    } 
+    }
   }
 }
 

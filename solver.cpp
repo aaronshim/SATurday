@@ -7,9 +7,13 @@ private:
   static Model *solveRClone(Formula *formula, Model *model, int index, int setVar, int backtrackDepth);
 
   static int maxDepth;
+  static int nodesFailed;
+  static int CUTOFF;
 };
 
 int Solver::maxDepth = 0;
+int Solver::CUTOFF = GLOBAL_CUTOFF;
+int Solver::nodesFailed = Solver::CUTOFF;
 
 Model *Solver::solve(Formula *formula) {
   Model *model = new Model(formula->getNVars());
@@ -23,7 +27,16 @@ Model *Solver::solve(Formula *formula) {
   // Setup.
   srand(time(NULL));
 
-  return solveR(formula, model, 0);
+  Model *solvedModel;
+
+  // If nodes failed was surpassed, we restart.
+  while (nodesFailed >= CUTOFF) {
+    nodesFailed = 0;
+    CUTOFF += GLOBAL_CUTOFF;
+    solvedModel = solveR(formula, model, 0);
+  }
+
+  return solvedModel;
 }
 
 Model *Solver::solveR(Formula *formula, Model *model, int backtrackDepth) {
@@ -31,16 +44,23 @@ Model *Solver::solveR(Formula *formula, Model *model, int backtrackDepth) {
 
   //formula->unitPropagate();
 
+  // Restart solver if nodes failed is above cutoff.
+  if (nodesFailed >= CUTOFF) {
+    return NULL;
+  }
+
   // Check if model unsatisfies formula, and if so, return null.
   if (formula->checkUnsat(model)) {
     if (DEBUG >= 5)
       cout << "Unsatisfied model: " << model->toString() << endl;
-    delete model;
     return NULL;
   }
 
   // Check if model satisfies formula, and if so, return it.
-  if (formula->checkSat(model)) return model->complete();
+  if (formula->checkSat(model)) {
+    model->complete();
+    return model->clone();
+  }
 
   int nextIndex = model->nextVar();
   if (nextIndex == -1) return NULL;
@@ -62,10 +82,12 @@ Model *Solver::solveR(Formula *formula, Model *model, int backtrackDepth) {
     if (backtrackDepth > maxDepth) {
       maxDepth = backtrackDepth;
     }
-    cout << "progress: " << backtrackDepth << "/" << formula->getNVars() << endl;
+    cout << "progress: " << backtrackDepth << "/" << formula->getNVars() <<
+            "\tnodes failed: " << nodesFailed << endl;
   }
 
   if ((retModel = solveRClone(formula, model, nextIndex, firstSet, backtrackDepth))) {
+    nodesFailed = 0;
     return retModel;
   }
 
@@ -74,10 +96,12 @@ Model *Solver::solveR(Formula *formula, Model *model, int backtrackDepth) {
   }
 
   if ((retModel = solveRClone(formula, model, nextIndex, !firstSet, backtrackDepth))) {
+    nodesFailed = 0;
     return retModel;
   }
 
-  delete model;
+  nodesFailed ++;
+
   return NULL;
 }
 
@@ -91,5 +115,6 @@ Model *Solver::solveRClone(Formula *formula, Model *model, int index, int setVar
   }
   Model *retModel = solveR(formulaClone, modelClone, backtrackDepth + 1);
   delete formulaClone;
+  delete modelClone;
   return retModel;
 }
