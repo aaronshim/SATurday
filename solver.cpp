@@ -65,7 +65,7 @@ Model *Solver::solveR(Formula *formula, Model *model, int backtrackDepth) {
     cout << "progress: " << backtrackDepth << "/" << formula->getNVars() << endl;
   }
 
-  if ((retModel = solveRClone(formula, model, nextIndex, firstSet, backtrackDepth + 1))) {
+  if ((retModel = solveRClone(formula, model, nextIndex, firstSet, backtrackDepth))) {
     return retModel;
   }
 
@@ -73,7 +73,7 @@ Model *Solver::solveR(Formula *formula, Model *model, int backtrackDepth) {
     cout << "Backtracking... depth=" << backtrackDepth << endl;
   }
 
-  if ((retModel = solveRClone(formula, model, nextIndex, !firstSet, backtrackDepth + 1))) {
+  if ((retModel = solveRClone(formula, model, nextIndex, !firstSet, backtrackDepth))) {
     return retModel;
   }
 
