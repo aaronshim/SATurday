@@ -32,6 +32,9 @@ Model *Solver::solve(Formula *f) {
 Model *Solver::solveR(Model *model, int backtrackDepth) {
   invariant(formula != NULL, 2331);
 
+  // have to clone formula to use unitPropagate()
+  //formula->unitPropogate();
+
   // Check if model unsatisfies formula, and if so, return null.
   if (formula->checkUnsat(model)) {
     if (DEBUG >= 5)

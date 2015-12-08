@@ -1,0 +1,133 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+require 'fileutils'
+
+# HARD CODED CONSTANTS
+NUM_VAR_MIN = 5
+NUM_VAR_MAX = 10
+
+NUM_CLAUSE_MIN = 3
+NUM_CLAUSE_MAX = 15
+
+CLAUSE_LENGTH_MIN = 1
+CLAUSE_LENGTH_MAX = 15
+
+# Probability that any literal is negative
+NEG_PROB = 0.5
+
+# COMMAND LINE OPTIONS
+options = {
+  times: 1,
+  num_clause_min: NUM_CLAUSE_MIN,
+  num_clause_max: NUM_CLAUSE_MAX,
+  num_var_min: NUM_VAR_MIN,
+  num_var_max: NUM_VAR_MAX,
+  clause_length_min: CLAUSE_LENGTH_MIN,
+  clause_length_max: CLAUSE_LENGTH_MAX,
+  neg_prob: NEG_PROB,
+  save: false
+}
+OptionParser.new do |opts|
+  opts.banner = "Usage: test [OPTIONS]"
+
+  opts.on("-c", "--count N", Integer, "Run test N times") do |n|
+    options[:times] = n
+  end
+
+  opts.on("-p", "--prob P", Float, "Probability P that a given literal is negated") do |p|
+    options[:neg_prob] = p
+  end
+
+  opts.on("-s", "--save", "Save every generated test case input and output") do
+    options[:save] = true
+  end
+
+  opts.on("--min-clauses N", Integer, "Set minimum number of clauses") do |n|
+    options[:num_clause_min] = n
+  end
+
+  opts.on("--max-clauses N", Integer, "Set maximum number of clauses") do |n|
+    options[:num_clause_max] = n
+  end
+
+  opts.on("--num-clauses N", Integer, "Set exact number of clauses") do |n|
+    options[:num_clause] = n
+  end
+
+  opts.on("--min-vars N", Integer, "Set minimum number of variables") do |n|
+    options[:num_var_min] = n
+  end
+
+  opts.on("--max-vars N", Integer, "Set maximum number of variables") do |n|
+    options[:num_var_max] = n
+  end
+
+  opts.on("--num-vars N", Integer, "Set exact number of variables") do |n|
+    options[:num_var] = n
+  end
+
+  opts.on("--clause-length-min N", Integer, "Set minimum clause length") do |n|
+    options[:clause_length_min] = n
+  end
+
+  opts.on("--clause-length-max N", Integer, "Set maximum clause length") do |n|
+    options[:clause_length_max] = n
+  end
+
+  opts.on("--clause-length N", Integer, "Set exact length of each clause") do |n|
+    options[:clause_length] = n
+  end
+
+end.parse!
+
+# RUN TESTS
+current_directory = FileUtils.pwd
+directory = "tests#{Time.now}"
+if options[:save]
+  FileUtils.mkdir directory
+  FileUtils.cd directory
+end
+options[:times].times do |i|
+  options[:num_var] ||= (options[:num_var_min]..options[:num_var_max]).to_a.sample
+  options[:num_clause] ||= (options[:num_clause_min]..options[:num_clause_max]).to_a.sample
+
+  # Generate our test case
+  s = "p cnf #{options[:num_var]} #{options[:num_clause]}\n"
+  options[:num_clause].times do
+    # pick the length of this clause
+    n = options[:clause_length]
+    n = (options[:clause_length_min]..options[:clause_length_max]).to_a.sample if n.nil?
+    # sample n variables without replacement
+    vars = (1..options[:num_var]).to_a.shuffle.take n
+    s << vars.inject("") {|l, r| neg = rand <= options[:neg_prob] ? -1 : 1; l + "#{r*neg} "} << "0\n"
+  end
+  s << "\n"
+  test_case_in = "t#{i}.in"
+  IO.write(test_case_in, s)
+
+  # Run both tests and compare
+  puts "Running test case #{i}"
+  t = Time.now
+  test_case_out = `#{current_directory}/saturday #{test_case_in}`
+  puts "Our SAT took #{Time.now - t} seconds"
+  t = Time.now
+  test_case_out_reference = `minisat #{test_case_in}`
+  puts "MiniSAT took #{Time.now - t} seconds"
+  # should we guard against error answers?
+  ours_answer = (/UNSATISFIABLE/ =~ test_case_out).nil? && !(/SATISFIABLE/ =~ test_case_out).nil?
+  minisat_answer = (/UNSATISFIABLE/ =~ test_case_out_reference).nil? && !(/SATISFIABLE/ =~ test_case_out_reference).nil?
+  if ours_answer == minisat_answer
+  	puts "Both solvers agree on satisfiability #{ours_answer}"
+  else
+  	puts "ERROR: Ours says satisfiability #{ours_answer} but MiniSAT says satisfiability #{minisat_answer}"
+  end
+  if options[:save]
+    IO.write("t#{i}.out", test_case_out)
+    IO.write("t#{i}.out.minisat", test_case_out_reference)
+  else
+    FileUtils.rm(test_case_in)
+  end
+  puts "="*78
+end
+

@@ -4,6 +4,7 @@ public:
     : index(index), isSet(isSet) {};
   int getIndex() { return index; };
   bool getIsSet() { return isSet; };
+  void flipIsSet() { isSet = !isSet; };
 
   Literal *clone();
   string toString();
