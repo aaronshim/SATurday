@@ -9,6 +9,7 @@ public:
   int containsLiteral(Literal *literal);
   bool deleteAllLiterals();
   bool deleteExactLiteral(Literal *literal);
+  void deleteOffendingLiterals(Model *model);
 
   Clause *clone();
   string toString();
@@ -113,6 +114,18 @@ bool Clause::deleteExactLiteral(Literal* literal) {
     }
   }
   return deleted;
+}
+
+// For simplification, if there are literals in the clause that
+// cannot be satisfied given the current model, we remove them
+// from the clause
+void Clause::deleteOffendingLiterals(Model *model) {
+  for (int i = 0; i < nLiterals; ++i) {
+    int vari = literals[i]->getIndex();
+    bool varPos = literals[i]->getIsSet();
+    if (!model->isAssigned(vari)) continue;
+    if (model->checkVar(vari) != varPos) deleteExactLiteral(literals[i]);
+  }
 }
 
 Clause *Clause::clone() {
